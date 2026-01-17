@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>PyLesson A 🐰</title>
+  <style>
+    :root{
+      --bg:#ffe6f2;
+      --accent:#ffb6d0;
+      --card:#ffffff;
+      --text:#333;
+      --muted:#666;
+      --button:#ff8fb3;
+    }
+    html,body{height:100%;margin:0;font-family: -apple-system, "Hiragino Maru Gothic ProN", "Arial Rounded MT", "Yu Gothic", sans-serif;background:var(--bg);color:var(--text);}
+    .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:40px 16px;box-sizing:border-box;}
+    .card{background:var(--card);border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.08);max-width:720px;width:100%;padding:28px;position:relative;}
+    header{display:flex;align-items:center;gap:16px;}
+    .logo{width:64px;height:64px;border-radius:16px;background:linear-gradient(180deg,var(--accent),#ffd6e8);display:flex;align-items:center;justify-content:center;font-size:34px;}
+    h1{margin:0;font-size:28px;}
+    p.lead{margin:8px 0 18px;color:var(--muted);}
+    .pi-display{font-family: "Menlo", "Courier New", monospace;font-size:20px;letter-spacing:2px;background:linear-gradient(90deg,#fff 0,#fff 100%);padding:14px;border-radius:12px;margin-bottom:12px;word-break:break-all;}
+    .highlight{background:var(--accent);padding:4px 8px;border-radius:8px;font-weight:700;color:#000;}
+    .controls{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+    input[type="text"]{flex:1;padding:10px 12px;border-radius:12px;border:1px solid #eee;font-size:16px;min-width:180px;}
+    button{background:var(--button);border:none;padding:10px 14px;border-radius:12px;color:white;font-weight:700;cursor:pointer;box-shadow:0 6px 14px rgba(255,140,180,0.18);}
+    button.secondary{background:#eee;color:var(--text);box-shadow:none;}
+    .msg{min-height:28px;color:var(--muted);font-weight:600;margin-top:6px;}
+    footer{margin-top:18px;text-align:right;color:var(--muted);font-size:13px;}
+    @media (max-width:480px){
+      .logo{width:50px;height:50px;font-size:28px;border-radius:12px;}
+      h1{font-size:22px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card" role="main">
+      <header>
+        <div class="logo" aria-hidden="true">🐰</div>
+        <div>
+          <h1>PyLesson A <span aria-hidden="true">🐰</span></h1>
+          <p class="lead">うさちゃんと一緒に、円周率を10桁ずつ楽しく練習しましょう！（最大200桁）</p>
+        </div>
+      </header>
+
+      <div id="piSection" style="margin-top:10px;">
+        <div class="pi-display" id="piText" aria-live="polite"></div>
+        <div class="controls">
+          <input id="userInput" type="text" placeholder="ここに10桁を入力" inputmode="numeric" autocomplete="off" />
+          <button id="checkBtn">チェック</button>
+          <button id="nextBtn" class="secondary">次へ</button>
+          <button id="restartBtn" class="secondary">最初へ</button>
+        </div>
+        <div class="msg" id="resultMsg" role="status"></div>
+      </div>
+
+      <footer>表示中の10桁を入力して「チェック」→「次へ」で進めます。</footer>
+    </div>
+  </div>
+
+  <script>
+    const PI = "3."
+    + "1415926535"
+    + "8979323846"
+    + "2643383279"
+    + "5028841971"
+    + "6939937510"
+    + "5820974944"
+    + "5923078164"
+    + "0628620899"
+    + "8628034825"
+    + "3421170679"
+    + "8214808651"
+    + "3282306647"
+    + "0938446095"
+    + "5058223172"
+    + "5359408128"
+    + "4811174502"
+    + "8410270193"
+    + "8521105559"
+    + "6446229489";
+
+    const digitsOnly = PI.replace("3.", "");
+    const chunkSize = 10;
+    let currentIndex = 0;
+    const totalChunks = Math.ceil(digitsOnly.length / chunkSize);
+
+    const piTextEl = document.getElementById("piText");
+    const userInput = document.getElementById("userInput");
+    const checkBtn = document.getElementById("checkBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const resultMsg = document.getElementById("resultMsg");
+
+    function renderPi() {
+      const before = digitsOnly.slice(0, currentIndex * chunkSize);
+      const current = digitsOnly.slice(currentIndex * chunkSize, currentIndex * chunkSize + chunkSize);
+      const after = digitsOnly.slice(currentIndex * chunkSize + chunkSize);
+
+      piTextEl.innerHTML = '<strong>3.</strong>' 
+        + '<span>' + before + '</span>'
+        + '<span class="highlight">' + (current || "") + '</span>'
+        + '<span>' + after + '</span>';
+
+      resultMsg.textContent = "";
+      userInput.value = "";
+      userInput.focus();
+    }
+
+    function checkInput() {
+      const user = userInput.value.trim();
+      const expected = digitsOnly.slice(currentIndex * chunkSize, currentIndex * chunkSize + chunkSize);
+      if (!expected) {
+        resultMsg.textContent = "もうこれ以上の桁はありません。最初に戻るか、練習をやめてください。";
+        return;
+      }
+      if (user === expected) {
+        resultMsg.textContent = "✅ 正解！次へ進んでね。";
+        resultMsg.style.color = "green";
+      } else {
+        resultMsg.textContent = "❌ 不正解。正解は: " + expected;
+        resultMsg.style.color = "crimson";
+      }
+    }
+
+    function nextChunk() {
+      const expected = digitsOnly.slice(currentIndex * chunkSize, currentIndex * chunkSize + chunkSize);
+      if (!expected) {
+        resultMsg.textContent = "これ以上進めません。";
+        return;
+      }
+      currentIndex++;
+      if (currentIndex >= totalChunks) {
+        currentIndex = totalChunks - 1;
+        resultMsg.textContent = "最後のチャンクです。おめでとう！";
+      } else {
+        renderPi();
+      }
+    }
+
+    function restart() {
+      currentIndex = 0;
+      renderPi();
+    }
+
+    checkBtn.addEventListener("click", checkInput);
+    nextBtn.addEventListener("click", nextChunk);
+    restartBtn.addEventListener("click", restart);
+
+    userInput.addEventListener("keydown", function(e){
+      if (e.key === "Enter") {
+        e.preventDefault();
+        checkInput();
+      }
+    });
+
+    renderPi();
+  </script>
+</body>
+</html>
