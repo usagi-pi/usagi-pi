@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>π 1000桁チェック</title>
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #f6faff;
+}
+button {
+  font-size: 18px;
+  padding: 8px 15px;
+  margin: 5px;
+}
+input {
+  font-size: 18px;
+  padding: 5px;
+  width: 200px;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<h2>🐰 π 1000桁チェック 🐰</h2>
+
+<p id="question"></p>
+
+<input type="text" id="answer" maxlength="10">
+<br>
+<button onclick="checkAnswer()">チェック</button>
+<button onclick="nextQuestion()">次へ</button>
+
+<p id="result"></p>
+
+<script>
+
+const PI =
+"3141592653589793238462643383279502884197169399375105820974944592" +
+"3078164062862089986280348253421170679821480865132823066470938446" +
+"0955058223172535940812848111745028410270193852110555964462294895" +
+"4930381964428810975665933446128475648233786783165271201909145648" +
+"5669234603486104543266482133936072602491412737245870066063155881" +
+"7488152092096282925409171536436789259036001133053054882046652138" +
+"4146951941511609433057270365759591953092186117381932611793105118" +
+"5480744623799627495673518857527248912279381830119491298336733624" +
+"4065664308602139494639522473719070217986094370277053921717629317" +
+"6752384674818467669405132000568127145263560827785771342757789609" +
+"1736371787214684409012249534301465495853710507922796892589235420" +
+"1995611212902196086403441815981362977477130996051870721134999999" +
+"8372978049951059731732816096318595024459455";
+
+const digitsOnly = PI.replace(".", "");
+const chunkSize = 10;
+let currentIndex = 0;
+
+function nextQuestion() {
+  document.getElementById("result").textContent = "";
+  document.getElementById("answer").value = "";
+  const chunk = digitsOnly.substr(currentIndex, chunkSize);
+  document.getElementById("question").textContent =
+    (currentIndex+1) + "〜" + (currentIndex+chunkSize) + "桁目は？";
+}
+
+function checkAnswer() {
+  const correct = digitsOnly.substr(currentIndex, chunkSize);
+  const user = document.getElementById("answer").value;
+  if (user === correct) {
+    document.getElementById("result").textContent = "⭕ 正解！";
+  } else {
+    document.getElementById("result").textContent =
+      "❌ 不正解 正しくは " + correct;
+  }
+}
+
+document.querySelector("button").addEventListener("click", nextQuestion);
+
+</script>
+
+</body>
+</html>
